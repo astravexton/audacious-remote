@@ -6,4 +6,4 @@ I'll write a better readme later
 
 bugs
 ====
-- back/forward button doesn't work
+- back/forward button doesn't work (not really a bug, I'll add it in sometime)
