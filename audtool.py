@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 import web, commands
 
 urls = (
@@ -7,11 +8,6 @@ urls = (
     "/np",    "np",
     "/playlist",    "playlist",
 )
-
-pl = commands.getoutput("audtool current-song")
-f = open("/tmp/audaciouspl","w")
-f.write(pl)
-f.close()
 
 class np:
     def GET(self):
@@ -59,15 +55,6 @@ class index:
     <style>
     *{margin:0;padding:0;}
     body { padding-bottom: 30px; }
-    .control {
-        //width: 30px;
-        //height: 30px;
-    }
-    .controls {
-        //position: absolute;
-        //top: 0;
-        //left: 0;
-    }
     #np {
         text-align: center;
     }
@@ -106,7 +93,7 @@ class index:
     <div class="panel-body" id="playlist"></div>
     <div id="footer" class="clearfix">
         Created by Nathan &copy; 2014<br/>
-        View me on <a href="">GitHub</a>
+        View me on <a href="https://github.com/nathan0/audacious-remote">GitHub</a>
     </div>
 </div>
 
