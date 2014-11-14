@@ -2,18 +2,25 @@
 import web, commands
 
 urls = (
-    "/",      "index",
-    "/pause", "pause",
-    "/stop",  "stop",
-    "/np",    "np",
+    "/",            "index",
+    "/pause",       "pause",
+    "/stop",        "stop",
+    "/np",          "np",
     "/playlist",    "playlist",
+    "/playID(.*)", "playSong",
 )
+
+class playSong:
+    def GET(self,songID):
+        web.header("Content-type","text/html")
+        commands.getoutput("audtool playlist-jump {}; audtool playback-play".format(songID))
+        return "OK"
 
 class np:
     def GET(self):
         web.header("Content-type","text/html")
         if commands.getoutput("audtool current-song"):
-            output = commands.getoutput("audtool current-song")+" <span class=\"label label-primary\">"+commands.getoutput("audtool current-song-output-length")+"/"+commands.getoutput("audtool current-song-length")+"</span>"
+            output = """{} <span class="label label-primary">{}/{}</span>""".format(commands.getoutput("audtool current-song"),commands.getoutput("audtool current-song-output-length"),commands.getoutput("audtool current-song-length"))
         else:
             output = "Nothing Playing"
         if commands.getoutput("audtool playback-status") == "paused":
@@ -23,15 +30,17 @@ class np:
 class playlist:
     def GET(self):
         web.header("Content-type","text/html")
-        output = """<ul class="list-group">"""
+        output = """<ul class="list-group">\n"""
         playlist = commands.getoutput("audtool playlist-display").split("\n")[1:-1]
         cursong = commands.getoutput("audtool current-song")
+        n=0
         for item in playlist:
+            n=n+1
             if cursong in item:
-                output+="""<li class="list-group-item active">"""+item+"</li>"
+                output+="""\t<li class="list-group-item active">{}</li>\n""".format(item)
             else:
-                output+="""<li class="list-group-item">"""+item+"</li>"
-        output+="</ul>"
+                output+="""\t<li class="list-group-item" onclick="playSong({})">{}</li>\n""".format(str(n),item)
+        output+="</ul>\n"
         return output.replace(" - "," <strong>-</strong> ")
 
 class pause:
@@ -84,7 +93,7 @@ class index:
         <div style="text-align:center;">
         <div class="controls panel-body">
             <button class="btn btn-default btn-warning control" id="backward"><i class="fa fa-backward"></i></button>
-            <button class="btn btn-default btn-success control" id="pause"><i class="fa fa-pause"></i></button>
+            <button class="btn btn-default btn-success control" id="pause"><i class="fa fa-pause" id="playpause"></i></button>
             <button class="btn btn-default btn-danger control" id="stop"><i class="fa fa-stop"></i></button>
             <button class="btn btn-default btn-warning control" id="forward"><i class="fa fa-forward"></i></button>
         </div>
@@ -119,6 +128,14 @@ setInterval(function(){
         url: "/np"
     }).done(function(html) {
         $("#np").html(html);
+        if (html.indexOf("paused") > -1) {
+           $("#playpause").removeClass("fa-pause");
+           $("#playpause").addClass("fa-play");
+        }
+        else {
+            $("#playpause").removeClass("fa-play");
+           $("#playpause").addClass("fa-pause");
+        }
     });
     $.ajax({
         url: "/playlist"
@@ -127,6 +144,9 @@ setInterval(function(){
     });
 }, 1000);
 $(".container").fadeIn(1500);
+function playSong(songID) {
+    $.get("playID="+songID)
+}
 </script>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
