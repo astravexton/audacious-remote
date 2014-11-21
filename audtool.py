@@ -1,5 +1,5 @@
 #!/usr/bin/python2
-import web, commands
+import web, commands, re
 
 urls = (
     "/",            "index",
@@ -7,12 +7,13 @@ urls = (
     "/stop",        "stop",
     "/np",          "np",
     "/playlist",    "playlist",
-    "/playID(.*)", "playSong",
+    "/playID=(.*)",  "playSong",
 )
 
 class playSong:
     def GET(self,songID):
         web.header("Content-type","text/html")
+        songID = re.sub("[^0-9]","",songID)
         commands.getoutput("audtool playlist-jump {}; audtool playback-play".format(songID))
         return "OK"
 
@@ -72,6 +73,10 @@ class index:
     }
     #footer {
         text-align: center;
+    }
+    .list-group-item:hover {
+        cursor: pointer;
+        background-color: rgba(0,0,0,.1);
     }
     </style>
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
