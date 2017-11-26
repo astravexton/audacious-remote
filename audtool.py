@@ -8,6 +8,8 @@ urls = (
     "/np",          "np",
     "/playlist",    "playlist",
     "/playID=(.*)",  "playSong",
+    "/forward", "forward",
+    "/backward", "backward",
 )
 
 class playSong:
@@ -27,6 +29,16 @@ class np:
         if commands.getoutput("audtool playback-status") == "paused":
             output += """ <span class="label label-info">paused</span>"""
         return output
+
+class forward:
+    def GET(self):
+        web.header("Content-type","text/html")
+        return commands.getoutput("audtool playlist-advance")
+
+class backward:
+    def GET(self):
+        web.header("Content-type","text/html")
+        return commands.getoutput("audtool playlist-reverse")
 
 class playlist:
     def GET(self):
@@ -122,6 +134,12 @@ $.ajax({
 }).done(function(html) {
     $("#playlist").html(html);
 });
+$("#forward").click(function() {
+    $.get("forward");
+});
+$("#backward").click(function() {
+    $.get("backward");
+});
 $("#pause").click(function() {
     $.get("pause");
 });
@@ -162,4 +180,3 @@ function playSong(songID) {
 if __name__ == "__main__":
     app = web.application(urls, globals())
     app.run()
-
